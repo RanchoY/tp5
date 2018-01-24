@@ -12,7 +12,6 @@ class User extends Validate{
         'admin_cate_id' => 'require|number',
         'password'      => 'require', 
         'password_confirm'=>'require|confirm:password'
-        'y' => 'require'
     ];
     //验证错误信息
     protected $message = [
@@ -26,7 +25,7 @@ class User extends Validate{
     //验证场景
     protected $scene = [
         'add' => ['name','nickname','password','admin_cate_id'],
-        'edit' => ['name','nickname','password','admin_cate_id'],
+        'edit' => ['name','nickname','admin_cate_id'],
         'editpassword' => ['password','password_confirm'],
     ];
 

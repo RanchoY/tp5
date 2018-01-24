@@ -90,30 +90,31 @@ class Admin extends User{
         $validate = new UserValidate();
         $post = $this->request->post();
     	if($this->request->has('id')){
-    		//是修改操作
+            //是修改操作,post数据
     		if($this->request->isPost()){
                 //验证部分数据合法性               
-	            if(!$validate->check($post)){
+	            if(!$validate->scene('edit')->check($post)){
 	                $this->error('提交失败：' . $validate->getError());
-	            }
-	            //验证用户名是否存在
-	            $name = $adminModel->where(['name'=>$post['name'],'id'=>['neq',$post['id']]])->select();
+                }
+                
+                //验证用户名是否存在
+	            $name = $adminModel->where(['name'=>$post['name'],'id'=>['neq',$post['id']]])->select()->toArray();
 	            if(!empty($name)){
 	            	return $this->error('提交失败：该用户名已被注册');
-	            }
+                }
 	            //验证昵称是否存在
-	            $nickname = $adminModel->where(['nickname'=>$post['nickname'],'id'=>['neq',$post['id']]])->select();
+	            $nickname = $adminModel->where(['nickname'=>$post['nickname'],'id'=>['neq',$post['id']]])->select()->toArray();
 	            if(!empty($nickname)){
 	            	return $this->error('提交失败：该昵称已被占用');
 	            }
-	            if(false == $adminModel->allowField(true)->save($post,['id'=>$id])){
+	            if(false == $adminModel->allowField(true)->save($post,['id'=>$post['id']])){
 	            	return $this->error('修改失败');
 	            }else{
                     addlog($adminModel->id);//写入日志
 	            	return $this->success('修改管理员信息成功','admin/admin/index');
 	            }
     		}else{
-                //非提交操作
+                //修改按钮,弹出页面
                 $get = $this->request->get();
     			$info['admin'] = $adminModel->where('id',$get['id'])->find();
     			$info['admin_cate'] = Db::name('admin_cate')->select();
@@ -121,7 +122,7 @@ class Admin extends User{
     			return $this->fetch('publish');
     		}
     	}else{
-    		//是新增操作
+    		//添加管理员,post数据
     		if($this->request->isPost()){
                 //验证部分数据合法性
           	    if(!$validate->check($post)){
@@ -147,7 +148,7 @@ class Admin extends User{
 	            	return $this->success('添加管理员成功','admin/admin/index');
 	            }
     		}else{
-    			//非提交操作
+    			//添加管理员,弹出页面
     			$info['admin_cate'] = Db::name('admin_cate')->select();
     			$this->assign('info',$info);
     			return $this->fetch('publish');

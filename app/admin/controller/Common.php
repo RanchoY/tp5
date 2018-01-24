@@ -31,7 +31,6 @@ class Common extends Controller{
         }
     }
 
-
     /**
      * 图片上传方法
      * @return [type] [description]

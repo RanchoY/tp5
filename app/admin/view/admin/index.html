@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>layui</title>
+	<meta name="renderer" content="webkit">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+	<link rel="stylesheet" href="__PUBLIC__/layui/css/layui.css"  media="all">
+	<link rel="stylesheet" href="__PUBLIC__/font-awesome/css/font-awesome.min.css" media="all" />
+	<link rel="stylesheet" href="__CSS__/admin.css"  media="all">
+	<style type="text/css">
+		#tooltip{
+			position:absolute;
+			border:1px solid #ccc;
+			background:#333;
+			padding:2px;
+			display:none;
+			color:#fff;
+		}
+	</style>
+</head>
+<body>
+<blockquote class="layui-elem-quote layui-quote-nm">
+<form class="layui-form" action="{:url('admin/admin/getlist')}" method="post" lay-filter="form">
+    <div class="layui-form-item" style="margin:0px;">
+      	<div class="layui-input-inline">
+        	<input class="layui-input layui-btn-sm" type="text" name="keywords" placeholder="请输入关键词" autocomplete="off">
+      	</div>
+      	<div class="layui-input-inline">
+       	 	<div class="layui-inline">
+            	<select name="admin_cate_id">
+              		<option value="">角色</option>
+              		{volist name="$info.cate" id="vo"}
+              			<option value="{$vo.id}">{$vo.name}</option>
+              		{/volist}
+            	</select>
+        	</div>
+    	</div>
+    	<div class="layui-input-inline">
+			<div class="layui-inline">
+				<div class="layui-input-inline">
+					<input id="create_time" class="layui-input" type="text" placeholder="创建时间" name="create_time">
+				</div>
+			</div>
+   		</div>
+    	<button class="layui-btn" lay-submit="" lay-filter="search">立即提交</button>
+		<a id="addAdmin" href="{:url('admin/admin/publish')}" class="layui-btn">添加管理员</a>
+		<button type="button" class="layui-btn layui-btn-danger" id="delAll">批量删除</button>
+    </div>
+</form> 
+</blockquote>
+<table id="table" class="layui-table" lay-filter="table">
+</table>
+<script type="text/html" id="operate">
+	<a class="layui-btn layui-btn-xs" lay-event="detail">查看</a>
+	<a class="layui-btn layui-btn-xs" lay-event="edit">编辑</a>
+  	<a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
+	<!-- <a href="{:url('admin/publish',['id'=>$vo.id])}" class="layui-btn layui-btn-xs a_menu" id="{$vo.id}" style="margin-right: 0;font-size:12px;">修改</a>
+    <a class="layui-btn layui-btn-xs layui-btn-danger delete" id="{$vo.id}" style="margin-right: 0;font-size:12px;">删除</a> -->
+</script>
+<script src="__PUBLIC__/layui/layui.js" charset="utf-8"></script>
+<script src="__PUBLIC__/jquery/jquery.min.js"></script>
+<script>
+var message;
+layui.config({
+	base: '__JS__/',
+	version: '1.0.1'
+}).use(['app', 'message'], function() {
+	var app = layui.app,
+		$ = layui.jquery,
+		layer = layui.layer;
+	//将message设置为全局以便子页面调用
+	message = layui.message;
+	//主入口
+	app.set({
+		type: 'iframe'
+	}).init();
+});
+</script> 
+<script>
+layui.use(['laydate','form','table','layer'],function(){
+  	var laydate = layui.laydate;
+	var  form 	= layui.form;
+	var table 	= layui.table;
+	var layer   = layui.layer;
+
+  	laydate.render({
+    	elem: '#create_time'
+  	});
+
+	//搜索
+	form.on('submit(search)', function(data){
+		tableInit.reload({
+			where: {key: data.field}
+		});
+		return false;
+  	});
+
+	var tableInit = table.render({
+		id: 'table',
+		elem: '#table',
+		url: "{:url('admin/admin/getlist')}",
+		method: 'post',
+		height: 600,
+		page: true,
+		cols: [[
+			{checkbox:true,fixed:true,width:100},
+			{field:'id',title:'ID',width:100},
+			{field:'admin_cate_name',title:'角色',width:100},
+			{field:'name',title:'用户名',width:150},
+			{field:'nickname',title:'昵称',width:150},
+			{field:'create_time',title:'创建时间',width:200},
+			{field:'login_time',title:'最后登录时间',width:200},
+			{field:'login_ip',title:'最后登录IP',width:200},
+			{toolbar:'#operate',title:'操作',width:500,align:'center'}
+		]],
+	});
+
+	//监听工具条
+	table.on('tool(table)', function(obj){
+		var data = obj.data; //获得当前行数据
+		var layEvent = obj.event; //获得lay-event对应的值(也可以是表头的event参数对应的值)
+		var tr = obj.tr; //获得当前行tr的DOM对象
+		
+		if(layEvent === 'detail'){ //查看
+			layer.msg('ID：'+ data.id + ' 的查看操作');
+		}else if(layEvent === 'del'){ //删除
+			layer.confirm('确定要删除该管理员吗？', function(index){
+				$.post("{:url('admin/admin/delete')}",{id:data.id},function(res){
+					if(res.code==0){
+						layer.msg(res.msg,{time:1000,icon:5});
+					}else{
+						layer.msg(res.msg,{time:1000,icon:6});
+					}
+					tableInit.reload();
+				});
+				layer.close(index);
+			});
+		}else if(layEvent === 'edit'){ //编辑
+			$.ajax({
+				url:"{:url('admin/admin/publish')}",
+				type:'get',
+				data:{id:data.id},
+				success: function(res){
+					if(res.code === 0){
+						layer.msg('你没有权限!');
+					}else{
+						layer.open({
+							type:2,
+							content:["{:url('admin/admin/publish')}"+"?id="+data.id,'no'],
+							area: ['700px', '500px'],
+							maxmin: true,
+							end:function(){
+								tableInit.reload();
+							}
+						});
+					}
+				},
+				error: function(){
+					layer.msg('请求失败!');
+				}
+			});
+		}
+	});
+
+    //添加管理员
+	$('#addAdmin').click(function(){
+		var url = $(this).attr('href');
+		layer.open({
+			type:2,
+			content:[url, 'no'],
+			area: ['700px', '500px'],
+			maxmin: true,
+			end:function(){
+				tableInit.reload();
+			}
+		});
+		return false;
+	});
+
+	//批量删除
+	$('#delAll').click(function(){
+		layer.confirm('确认要删除选中信息吗？',{icon:3},function(index){
+			layer.close(index);
+			var checkStatus = table.checkStatus('table'); 
+			$ids = $.map(checkStatus.data,function(o){
+				return o.id;
+			})
+            if($ids.length == 0){
+				layer.msg('未选中删除的管理员',{time:1000,icon:5});
+			}else{
+				var loading = layer.load(1,{shade:[0.1,'#fff']});
+				$.post("{:url('admin/admin/delete')}", {id:$ids}, function(data){
+					layer.close(loading);
+					if(data.code === 0){
+						layer.msg(data.msg,{time:1000,icon:5});
+					}else{
+						layer.msg(data.msg, {time:1000,icon:6});
+					}
+					tableInit.reload();
+				});
+			}
+		});
+	});
+});
+</script>
+<script type="text/javascript">
+// $(function(){
+//   	var x = 10;
+//   	var y = 20;
+//   	$(".tooltip").mouseover(function(e){ 
+//     	var tooltip = "<div id='tooltip'><img src='"+ this.href +"' alt='产品预览图' height='200'/>"+"<\/div>"; //创建 div 元素
+//     	$("body").append(tooltip);  //把它追加到文档中             
+//     	$("#tooltip").css({
+//         	"top": (e.pageY+y) + "px",
+//         	"left":  (e.pageX+x)  + "px"
+//       	}).show("fast");    //设置x坐标和y坐标，并且显示
+//     }).mouseout(function(){  
+//     	$("#tooltip").remove();  //移除 
+//     }).mousemove(function(e){
+//     	$("#tooltip")
+//       	.css({
+//         	"top": (e.pageY+y) + "px",
+//         	"left":  (e.pageX+x)  + "px"
+//       	});
+//   	});
+// })
+
+// $('.delete').click(function(){
+//   	var id = $(this).attr('id');
+//   	layer.confirm('确定要删除?', function(index) {
+//     $.ajax({
+//       	url:"{:url('admin/admin/delete')}",
+//       	data:{id:id},
+//       	success:function(res) {
+//         	layer.msg(res.msg);
+//         	if(res.code == 1){
+//           		setTimeout(function(){
+//             		location.href = res.url;
+//           		},1500);
+//         	}
+//       	}
+//     })
+//   })
+// })
+</script>
+<script type="text/javascript">
+// layui.use('layer', function(){
+//   	var layer = layui.layer;
+//   	$('.a_menu').click(function(){
+// 		var url = $(this).attr('href');
+//     	var a = 0;
+//     	$.ajax({
+// 			url:url
+// 			,async:false
+// 			,success:function(res){
+// 				if(res.code == 0){
+// 					layer.msg(res.msg);
+// 					a = 1;
+// 				}
+// 			}
+//     	});
+// 		if(a === 0){
+// 			layer.open({
+// 				type:2,
+// 				content:[url, 'no'],
+// 				area: ['700px', '500px'],
+// 				maxmin: true,
+// 				end:function(){
+// 					//location.reload();
+// 				}
+// 			});
+// 		}
+//     	return false;
+//   	});
+// });
+</script>
+</body>
+</html>

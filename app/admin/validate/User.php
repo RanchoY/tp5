@@ -12,6 +12,7 @@ class User extends Validate{
         'admin_cate_id' => 'require|number',
         'password'      => 'require', 
         'password_confirm'=>'require|confirm:password'
+        'y' => 'require'
     ];
     //验证错误信息
     protected $message = [

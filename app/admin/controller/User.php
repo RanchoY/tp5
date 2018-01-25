@@ -59,6 +59,8 @@ class User extends Controller{
                 }
             }
 
+            
+
             if(isset($param) and !empty($param)) {
                 //确定有参数
                 $string = '';

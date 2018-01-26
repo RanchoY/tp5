@@ -1,11 +1,20 @@
 <?php
+// +----------------------------------------------------------------------
+// | Tplay [ WE ONLY DO WHAT IS NECESSARY ]
+// +----------------------------------------------------------------------
+// | Copyright (c) 2017 http://tplay.pengyichen.com All rights reserved.
+// +----------------------------------------------------------------------
+// | Licensed ( http://www.apache.org/licenses/LICENSE-2.0 )
+// +----------------------------------------------------------------------
+// | Author: 听雨 < 389625819@qq.com >
+// +----------------------------------------------------------------------
 namespace app\admin\controller;
 
-use think\Controller;
-use think\Cookie;
 use think\Db;
-
+use think\Cookie;
+use think\Controller;
 class Main extends Controller{
+    
     public function index(){
         //tp版本号
         $info['tp'] = THINK_VERSION;
@@ -29,8 +38,6 @@ class Main extends Controller{
         //剩余空间大小
         //$info['disk'] = round(disk_free_space("/")/1024/1024,1).'M';
         $this->assign('info',$info);
-
-
         //网站信息
         $web['user_num'] = Db::name('admin')->count();
         $web['admin_cate'] = Db::name('admin_cate')->count();
@@ -45,16 +52,7 @@ class Main extends Controller{
         $web['ref_file'] = Db::name('attachment')->where('status',-1)->count();
         $web['message_num'] = Db::name('messages')->count();
         $web['look_message'] = Db::name('messages')->where('is_look',0)->count();
-
-        if(Cookie::has('remember')) {
-            $web['remember'] = Cookie::get('remember');
-            //return $web['remember'];
-        } else {
-            $web['remember'] = '';
-        }
-
         $this->assign('web',$web);
-
         return $this->fetch('index');
     }
 }

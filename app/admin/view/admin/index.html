@@ -83,8 +83,8 @@ layui.use(['laydate','form','table','layer'],function(){
   	var laydate = layui.laydate;
 	var  form 	= layui.form;
 	var table 	= layui.table;
-	var layer   = layui.layer;
-
+    var layer   = layui.layer;
+    
   	laydate.render({
     	elem: '#create_time'
   	});
@@ -204,77 +204,6 @@ layui.use(['laydate','form','table','layer'],function(){
 		});
 	});
 });
-</script>
-<script type="text/javascript">
-// $(function(){
-//   	var x = 10;
-//   	var y = 20;
-//   	$(".tooltip").mouseover(function(e){ 
-//     	var tooltip = "<div id='tooltip'><img src='"+ this.href +"' alt='产品预览图' height='200'/>"+"<\/div>"; //创建 div 元素
-//     	$("body").append(tooltip);  //把它追加到文档中             
-//     	$("#tooltip").css({
-//         	"top": (e.pageY+y) + "px",
-//         	"left":  (e.pageX+x)  + "px"
-//       	}).show("fast");    //设置x坐标和y坐标，并且显示
-//     }).mouseout(function(){  
-//     	$("#tooltip").remove();  //移除 
-//     }).mousemove(function(e){
-//     	$("#tooltip")
-//       	.css({
-//         	"top": (e.pageY+y) + "px",
-//         	"left":  (e.pageX+x)  + "px"
-//       	});
-//   	});
-// })
-
-// $('.delete').click(function(){
-//   	var id = $(this).attr('id');
-//   	layer.confirm('确定要删除?', function(index) {
-//     $.ajax({
-//       	url:"{:url('admin/admin/delete')}",
-//       	data:{id:id},
-//       	success:function(res) {
-//         	layer.msg(res.msg);
-//         	if(res.code == 1){
-//           		setTimeout(function(){
-//             		location.href = res.url;
-//           		},1500);
-//         	}
-//       	}
-//     })
-//   })
-// })
-</script>
-<script type="text/javascript">
-// layui.use('layer', function(){
-//   	var layer = layui.layer;
-//   	$('.a_menu').click(function(){
-// 		var url = $(this).attr('href');
-//     	var a = 0;
-//     	$.ajax({
-// 			url:url
-// 			,async:false
-// 			,success:function(res){
-// 				if(res.code == 0){
-// 					layer.msg(res.msg);
-// 					a = 1;
-// 				}
-// 			}
-//     	});
-// 		if(a === 0){
-// 			layer.open({
-// 				type:2,
-// 				content:[url, 'no'],
-// 				area: ['700px', '500px'],
-// 				maxmin: true,
-// 				end:function(){
-// 					//location.reload();
-// 				}
-// 			});
-// 		}
-//     	return false;
-//   	});
-// });
 </script>
 </body>
 </html>

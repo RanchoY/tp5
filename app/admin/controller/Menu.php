@@ -1,11 +1,10 @@
 <?php
 namespace app\admin\controller;
 
-use think\Controller;
+use think\Db;
+use think\Cache;
 use think\Cookie;
 use think\Loader;
-use think\Cache;
-use think\Db;
 
 use app\admin\controller\User;
 use app\admin\model\AdminMenu as menuModel;
@@ -18,7 +17,6 @@ class Menu extends User{
         $this->assign('menus',$menus);
         return $this->fetch('index');
     }
-
 
     public function publish(){
     	//获取菜单id
@@ -108,7 +106,6 @@ class Menu extends User{
     		}
     	}	
     }
-
 
     public function delete(){
     	if($this->request->isAjax()) {

@@ -5,6 +5,8 @@ use think\Model;
 
 class Admin extends Model{
     protected $resultSetType = 'collection';
+    protected $autoWriteTimestamp = 'timestamp';
+    
 	public function admincate(){
         //关联角色表,bind把子模型属性绑定属性到父模型
         return $this->belongsTo('AdminCate','admin_cate_id','id')->bind(['admin_cate_name'=>'name']);

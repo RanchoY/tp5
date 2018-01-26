@@ -1,7 +1,7 @@
 <div class="layui-footer">
     <!-- 底部固定区域 -->
     2017 &copy;
-    <a href="javascript:;">Tplay后台基础框架</a> tplay.pengyichen.cn
+    <a href="javascript:;">thinkphp5后台</a> www.ranchoy.cn
 </div>
 </div>
 <script src="__PUBLIC__/layui/layui.js"></script>
@@ -10,7 +10,7 @@ var message;
 layui.config({
         base: '__JS__/',
         version: '1.0.1'
-}).use(['app', 'message'], function() {
+}).use(['app', 'message'], function(){
     var app = layui.app,
         $ = layui.jquery,
         layer = layui.layer;
@@ -21,26 +21,26 @@ layui.config({
         type: 'iframe'
     }).init();
     
-    $('dl.skin > dd').on('click', function() {
+    $('dl.skin > dd').on('click', function(){
         var $that = $(this);
         var skin = $that.children('a').data('skin');
         switchSkin(skin);
     });
-    var setSkin = function(value) {
-        layui.data('kit_skin', {
+    var setSkin = function(value){
+        layui.data('kit_skin',{
             key: 'skin',
             value: value
         });
     },
-    getSkinName = function() {
+    getSkinName = function(){
         return layui.data('kit_skin').skin;
     },
-    switchSkin = function(value) {
+    switchSkin = function(value){
         var _target = $('link[kit-skin]')[0];
         _target.href = _target.href.substring(0, _target.href.lastIndexOf('/') + 1) + value + _target.href.substring(_target.href.lastIndexOf('.'));
         setSkin(value);
     },
-    initSkin = function() {
+    initSkin = function(){
         var skin = getSkinName();
         switchSkin(skin === undefined ? 'default' : skin);
     }();
@@ -90,15 +90,15 @@ layui.config({
 </script>
 <script src="__PUBLIC__/jquery/jquery.min.js"></script>
 <script type="text/javascript">
-layui.use('jquery', function() {
+layui.use('jquery', function(){
     var $ = layui.jquery;
-    $('#clear').on('click', function() {
+    $('#clear').on('click', function(){
         var the = $(this).find('i');
         the.attr("class","fa fa-spinner");
         $.ajax({
             url:"{:url('admin/common/clear')}"
-            ,success:function(res) {
-            if(res.code == 1) {
+            ,success:function(res){
+            if(res.code == 1){
                 setTimeout(function(){
                     parent.message.show({
                         skin: 'cyan',
@@ -116,15 +116,15 @@ $('#logout').click(function(){
 layer.confirm('真的要退出?',{icon: 3, title:'提示',anim: 2}, function(index){
     $.ajax({
         url:"{:url('admin/common/logout')}"
-        ,success:function(res) {
-        layer.msg(res.msg,{offset: '250px',anim: 4});
-        if(res.code == 1) {
-            setTimeout(function(){
-                location.href = res.url;
-            },2000)
+        ,success:function(res){
+            layer.msg(res.msg,{offset: '250px',anim: 4});
+            if(res.code == 1){
+                setTimeout(function(){
+                    location.href = res.url;
+                },2000)
+            }
         }
-        }
-    })
+    });
 }) 
 })
 

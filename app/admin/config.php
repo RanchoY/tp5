@@ -14,7 +14,7 @@
 return [
 	//网站名称
     'website'                => [
-        'name'        => 'thinkphp5',
+        'name'        => 'THINKPHP5',
         'keywords'    => 'thinkphp5',
         'description' => 'thinkphp5'
 	],

@@ -1,15 +1,4 @@
 <?php
-// +----------------------------------------------------------------------
-// | Tplay [ WE ONLY DO WHAT IS NECESSARY ]
-// +----------------------------------------------------------------------
-// | Copyright (c) 2017 http://tplay.pengyichen.com All rights reserved.
-// +----------------------------------------------------------------------
-// | Licensed ( http://www.apache.org/licenses/LICENSE-2.0 )
-// +----------------------------------------------------------------------
-// | Author: 听雨 < 389625819@qq.com >
-// +----------------------------------------------------------------------
-
-
 namespace app\admin\controller;
 
 use \think\Controller;
@@ -111,8 +100,7 @@ class Urlsconfig extends User
     }
 
 
-    public function status()
-    {
+    public function status(){
         //获取文件id
         $id = $this->request->has('id') ? $this->request->param('id', 0, 'intval') : 0;
         if($id > 0) {

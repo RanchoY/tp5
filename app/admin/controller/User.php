@@ -1,13 +1,4 @@
 <?php
-// +----------------------------------------------------------------------
-// | Tplay [ WE ONLY DO WHAT IS NECESSARY ]
-// +----------------------------------------------------------------------
-// | Copyright (c) 2017 http://tplay.pengyichen.com All rights reserved.
-// +----------------------------------------------------------------------
-// | Licensed ( http://www.apache.org/licenses/LICENSE-2.0 )
-// +----------------------------------------------------------------------
-// | Author: 听雨 < 389625819@qq.com >
-// +----------------------------------------------------------------------
 namespace app\admin\controller;
 
 use think\Db;
@@ -22,8 +13,7 @@ class User extends Controller{
      * 检查用户访问的url在不在其角色组的权限范围内
      * @return [type] [description]
      */
-    protected function _initialize(){
-        
+    protected function _initialize(){    
         //检查当前ip是不是在黑名单
         $black_ip = Db::name('webconfig')->where('web','web')->value('black_ip');   
         if(!empty($black_ip)){
@@ -112,7 +102,7 @@ class User extends Controller{
             }
             
             //得到用户的权限菜单
-            $menus = Db::name('admin_cate')->where('id',$cookie['admin_cate_id'])->value('permissions');
+            $menus = Db::name('admin_cate')->where('id',$adminInfo['admin_cate_id'])->value('permissions');
             //将得到的菜单id集成的字符串拆分成数组
             $menus = explode(',',$menus);
             if(!empty($string)){
@@ -135,12 +125,12 @@ class User extends Controller{
                         }
                     }
                 }
-            } else {
+            }else{
                 //用户访问的url里没有参数
                 $menu = Db::name('admin_menu')->where($where)->find();
                 //$data['name'] = $menu['name'];
-                if(!empty($menu)) {
-                    if(empty($menu['parameter'])) {
+                if(!empty($menu)){
+                    if(empty($menu['parameter'])){
                         if(!in_array($menu['id'],$menus)){
                             return $this->error('你没有权限');
                         }

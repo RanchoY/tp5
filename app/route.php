@@ -15,7 +15,6 @@ foreach ($url as $k => $val) {
 	\think\Route::rule($k,$val);
 }
 
-
 return [
     '__pattern__' => [
         'name' => '\w+',

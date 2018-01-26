@@ -16,8 +16,6 @@ class Admin extends User{
     //管理员列表
     public function index(){
         //实例化管理员模型
-        // $adminModel = new AdminModel();
-        // $post = $this->request->post();
         $info['cate'] = Db::name('admin_cate')->select();
         $this->assign('info',$info);
 
@@ -31,26 +29,27 @@ class Admin extends User{
         }
         $post = $this->request->post();
         $adminModel = new AdminModel();
-     
+  
         if(array_key_exists('key',$post) == false){
             $data = $adminModel->with('admincate')->order('create_time desc')->select()->hidden(['password','thumb','admin_cate_id','update_time'])->toArray();
         }else{
             $serach = $post['key'];
-            $map = array();
+            $where = [];
             if (isset($serach['keywords']) and !empty($serach['keywords'])){
-                $map['nickname'] = ['like', '%' . $serach['keywords'] . '%'];
+                $where['nickname'] = ['like', '%' . $serach['keywords'] . '%'];
             }
             if (isset($serach['admin_cate_id']) and $serach['admin_cate_id'] > 0){
-                $map['admin_cate_id'] = $serach['admin_cate_id'];
+                $where['admin_cate_id'] = $serach['admin_cate_id'];
             }
      
             if(isset($serach['create_time']) and !empty($serach['create_time'])){
-                $min_time = strtotime($serach['create_time']);
-                $max_time = $min_time + 24 * 60 * 60;
-                $map['create_time'] = [['>=',$min_time],['<=',$max_time]];
+                $min_time = date("Y-m-d H:i:s",strtotime($serach['create_time']));
+                $max_time = date("Y-m-d H:i:s", strtotime("next day", strtotime($serach['create_time'])));
+                $where['create_time'] = [['>=',$min_time],['<=',$max_time]];
             }
-            $data = $adminModel->with('admincate')->where($map)->order('create_time desc')->select()->hidden(['password','thumb','admin_cate_id','update_time'])->toArray();
+            $data = $adminModel->with('admincate')->where($where)->order('create_time desc')->select()->hidden(['password','thumb','admin_cate_id','update_time'])->toArray();
         }
+
         return fmtData($data);
     }
 
@@ -60,32 +59,34 @@ class Admin extends User{
         $adminId = Session::get('admin');
         $adminModel = new AdminModel();
         if($adminId > 0){
-            //是修改操作
+            //是修改操作 
             if($this->request->isPost()){
                 //是提交操作
+             
                 $post = $this->request->post();
                 //验证昵称是否存在
-                $nickname = $adminModel->where(['nickname'=>$post['nickname'],'id'=>['neq',$post['id']]])->select();
-                if(!empty($nickname)){
+                $admin = $adminModel->where(['nickname'=>$post['nickname'],'id'=>['neq',$post['id']]])->select()->toArray();
+                if(!empty($admin)){
                     return $this->error('提交失败:该昵称已被占用');
                 }
+              
                 if(false == $adminModel->allowField(true)->save($post,['id'=>$adminId])){
                     return $this->error('修改失败');
                 }else{
                     addlog($adminModel->id);//写入日志
-                    return $this->success('修改个人信息成功','admin/admin/personal');
-                }
+                   return $this->success('修改个人信息成功','admin/admin/personal');
+                }       
             }else{
                 //非提交操作
                 $info['admin'] = $adminModel->where('id',$adminId)->find();
                 $this->assign('info',$info);
-                return $this->fetch();
+                return $this->fetch('personal');
             }
         }else{
             return $this->error('id不正确');
         }
     }
-
+    
     //管理员的添加及修改
     public function publish(){
         $adminModel = new AdminModel();

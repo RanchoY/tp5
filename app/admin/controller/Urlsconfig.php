@@ -111,8 +111,7 @@ class Urlsconfig extends User
     }
 
 
-    public function status()
-    {
+    public function status(){
         //获取文件id
         $id = $this->request->has('id') ? $this->request->param('id', 0, 'intval') : 0;
         if($id > 0) {

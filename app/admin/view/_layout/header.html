@@ -55,10 +55,10 @@
                 </li>
                 <li class="layui-nav-item">
                     <a href="javascript:;" style="color:#fff;">
-                        欢迎, {empty name="$cookie.nickname"}{$cookie.name}{else /}{$cookie.nickname}{/empty}
+                        欢迎, {empty name="$adminInfo.nickname"}{$adminInfo.name}{else /}{$adminInfo.nickname}{/empty}
                     </a>
                     <dl class="layui-nav-child">
-                        <dd><a href="javascript:;" data-url="{:url('admin/admin/personal',['id'=>$cookie.id])}" data-icon="fa-asterisk" data-title="个人信息" kit-target data-id='1'><span><i class="fa fa-cog"></i> 基本资料</span></a></dd>
+                        <dd><a href="javascript:;" data-url="{:url('admin/admin/personal',['id'=>$adminInfo.id])}" data-icon="fa-asterisk" data-title="个人信息" kit-target data-id='1'><span><i class="fa fa-cog"></i> 基本资料</span></a></dd>
                         <dd><a href="javascript:;"  data-url="{:url('admin/admin/editPassword')}" data-icon="fa-edit" data-title="修改密码" kit-target data-id='2'><span><i class="fa fa-edit"></i> 修改密码</span></a></dd>
                         <dd><a href="javascript:;"  id="logout"><span><i class="fa fa-sign-out" aria-hidden="true"></i> 退了</span></a></dd>
                     </dl>

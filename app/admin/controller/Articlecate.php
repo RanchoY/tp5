@@ -9,27 +9,25 @@
 // | Author: 听雨 < 389625819@qq.com >
 // +----------------------------------------------------------------------
 
-
 namespace app\admin\controller;
 
-use \think\Cache;
-use \think\Controller;
-use think\Loader;
 use think\Db;
-use \think\Cookie;
+use think\Cache;
+use think\Cookie;
+use think\Loader;
+use think\Session;
 use app\admin\controller\User;
 use app\admin\model\ArticleCate as cateModel;
-class Articlecate extends User
-{
-    public function index()
-    {
+
+class Articlecate extends User{
+    
+    public function index(){
         $model = new cateModel();
         $cate = $model->select();
         $cates = $model->catelist($cate);
         $this->assign('cates',$cates);
         return $this->fetch();
     }
-
 
     public function publish()
     {

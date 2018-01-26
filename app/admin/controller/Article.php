@@ -12,18 +12,18 @@
 
 namespace app\admin\controller;
 
-use \think\Cache;
-use \think\Controller;
-use think\Loader;
 use think\Db;
-use \think\Cookie;
+use think\Cache;
+use think\Cookie;
+use think\Loader;
+use think\Session;
 use app\admin\controller\User;
 use app\admin\model\Article as articleModel;
 use app\admin\model\ArticleCate as cateModel;
-class Article extends User
-{
-    public function index()
-    {
+
+class Article extends User{
+    
+    public function index(){
         $model = new articleModel();
         $post = $this->request->post();
         if (isset($post['keywords']) and !empty($post['keywords'])) {
@@ -93,7 +93,7 @@ class Article extends User
 	            	return $this->error('id不正确');
 	            }
                 //设置修改人
-                $post['edit_admin_id'] = Cookie::get('admin');
+                $post['edit_admin_id'] = Session::get('admin');
 	            if(false == $model->allowField(true)->save($post,['id'=>$id])) {
 	            	return $this->error('修改失败');
 	            } else {
@@ -130,7 +130,7 @@ class Article extends User
 	                $this->error('提交失败：' . $validate->getError());
 	            }
                 //设置创建人
-                $post['admin_id'] = Cookie::get('admin');
+                $post['admin_id'] = Session::get('admin');
                 //设置修改人
                 $post['edit_admin_id'] = $post['admin_id'];
 	            if(false == $model->allowField(true)->save($post)) {

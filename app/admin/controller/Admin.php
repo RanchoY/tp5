@@ -2,11 +2,14 @@
 namespace app\admin\controller;
 
 use think\Db;
-use think\Cookie;
+use think\Session;
 use think\Validate; 
 use app\admin\model\AdminMenu;
 use app\admin\controller\User;
-use app\admin\model\Admin as AdminModel;//管理员模型
+use app\admin\model\Admin as AdminModel;
+use app\admin\model\AdminLog as AdminLogModel;
+use app\admin\model\AdminCate as AdminCateModel;
+
 use app\admin\validate\User as UserValidate;
 
 class Admin extends User{
@@ -54,19 +57,19 @@ class Admin extends User{
     //管理员个人资料修改，属于无权限操作，仅能修改昵称和头像，后续可增加其他字段
     public function personal(){
         //获取管理员id
-        $id = Cookie::get('admin');
+        $adminId = Session::get('admin');
         $adminModel = new AdminModel();
-        if($id > 0){
+        if($adminId > 0){
             //是修改操作
-            if($this->request->isPost()) {
+            if($this->request->isPost()){
                 //是提交操作
                 $post = $this->request->post();
                 //验证昵称是否存在
                 $nickname = $adminModel->where(['nickname'=>$post['nickname'],'id'=>['neq',$post['id']]])->select();
-                if(!empty($nickname)) {
+                if(!empty($nickname)){
                     return $this->error('提交失败:该昵称已被占用');
                 }
-                if(false == $adminModel->allowField(true)->save($post,['id'=>$id])) {
+                if(false == $adminModel->allowField(true)->save($post,['id'=>$adminId])){
                     return $this->error('修改失败');
                 }else{
                     addlog($adminModel->id);//写入日志
@@ -74,7 +77,7 @@ class Admin extends User{
                 }
             }else{
                 //非提交操作
-                $info['admin'] = $adminModel->where('id',$id)->find();
+                $info['admin'] = $adminModel->where('id',$adminId)->find();
                 $this->assign('info',$info);
                 return $this->fetch();
             }
@@ -160,7 +163,7 @@ class Admin extends User{
     public function editPassword(){
         $adminModel = new AdminModel();
     	if($this->request->has('id')){
-            $adminId = Cookie::get('admin');
+            $adminId = Session::get('admin');
             $id =$this->request->param('id'); 
     		if($id == $adminId){
     			$post = $this->request->post();
@@ -196,7 +199,7 @@ class Admin extends User{
     public function delete(){
         $adminModel = new AdminModel();
     	if($this->request->isPost()){
-            $adminId = Cookie::get('admin');
+            $adminId = Session::get('admin');
             $post = $this->request->post();
             $ids = [];
             if(!is_array($post['id'])){
@@ -230,7 +233,7 @@ class Admin extends User{
      * @return [type] [description]
      */
     public function adminCate(){
-    	$model = new \app\admin\model\AdminCate;
+    	$model = new AdminCateModel();
 
         $post = $this->request->post();
         if (isset($post['keywords']) and !empty($post['keywords'])){
@@ -405,9 +408,8 @@ class Admin extends User{
         }
     }
 
-
     public function log(){
-        $model = new \app\admin\model\AdminLog();
+        $model = new AdminLogModel();
 
         $post = $this->request->post();
         if (isset($post['admin_menu_id']) and $post['admin_menu_id'] > 0) {
@@ -434,48 +436,5 @@ class Admin extends User{
         $info['admin'] = Db::name('admin')->select();
         $this->assign('info',$info);
         return $this->fetch();
-    }
-
-    public function ceshi(){
-        //不是超级管理员，获取访问的url结构
-        $where['module'] = $this->request->module();
-        $where['controller'] = $this->request->controller();
-        $where['function'] = $this->request->action();
-        $where['type'] = 1;
-        //获取除了域名和后缀外的url，是字符串
-        $parameter = $this->request->path() ? $this->request->path() : null;
-        //将字符串转化为数组
-        $parameter = explode('/',$parameter);
-        //剔除url中的模块、控制器和方法
-        foreach ($parameter as $key => $value) {
-            if($value != $where['module'] and $value != $where['controller'] and $value != $where['function']) {
-                $param[] = $value;
-            }
-        }
-
-        if(isset($param) and !empty($param)) {
-            //确定有参数
-            $string = '';
-            foreach ($param as $key => $value) {
-                //奇数为参数的参数名，偶数为参数的值
-                if($key%2 !== 0) {
-                    //过滤只有一个参数和最后一个参数的情况
-                    if(count($param) > 2 and $key < count($param)-1) {
-                        $string.=$value.'&';
-                    } else {
-                        $string.=$value;
-                    }
-                } else {
-                    $string.=$value.'=';
-                }
-            } 
-        } else {
-            $string = [];
-            $param = $this->request->param();
-            foreach ($param as $key => $value){
-                $string[] = $key.'='.$value;
-            }
-            $string = implode('&',$string);
-        } 
     }
 }

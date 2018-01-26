@@ -1,12 +1,20 @@
 <?php
+// +----------------------------------------------------------------------
+// | Tplay [ WE ONLY DO WHAT IS NECESSARY ]
+// +----------------------------------------------------------------------
+// | Copyright (c) 2017 http://tplay.pengyichen.com All rights reserved.
+// +----------------------------------------------------------------------
+// | Licensed ( http://www.apache.org/licenses/LICENSE-2.0 )
+// +----------------------------------------------------------------------
+// | Author: 听雨 < 389625819@qq.com >
+// +----------------------------------------------------------------------
 namespace app\admin\controller;
 
-use think\Controller;
-use think\Cookie;
-use think\Loader;
-use think\Cache;
 use think\Db;
-
+use think\Cache;
+use think\Loader;
+use think\Session;
+use think\Controller;
 class User extends Controller{
     /**
      * 检查操作用户的ip是否在黑名单里
@@ -15,34 +23,51 @@ class User extends Controller{
      * @return [type] [description]
      */
     protected function _initialize(){
-        //检查当前ip是不是在黑名单
-        $black_ip = Db::name('webconfig')->where('web','web')->value('black_ip');
         
-        if(!empty($black_ip)) {
+        //检查当前ip是不是在黑名单
+        $black_ip = Db::name('webconfig')->where('web','web')->value('black_ip');   
+        if(!empty($black_ip)){
             //转化成数组
             $black_ip = explode(',',$black_ip);
             //获取当前访问的ip
             $ip = $this->request->ip();
             if(in_array($ip,$black_ip)) {
-                //清空cookie
-                if(!empty(Cookie::get('admin'))) {
-                    Cookie::delete('admin');
+                //清空session
+                if(Session::has('admin')) {
+                    Session::delete('admin');
                 }
                 return $this->error('你的ip在黑名单里','admin/common/login');
             }
         }
         
         //检查是否登录
-        $admin_id = Cookie::get('admin');
-        if(!empty($admin_id)) {
-            $cookie = Db::name('admin')->where('id',$admin_id)->find();
-            $this->assign('cookie',$cookie);
-        } else {
+        if(Session::has('admin')){
+            $adminId = Session::get('admin');
+            $options = [
+                // 缓存类型为File
+                'type'  => 'File', 
+                // 缓存有效期
+                'expire'=>  7200, 
+                //缓存前缀
+                'prefix'=>  'admin',
+                 // 指定缓存目录
+                'path'  =>  APP_PATH.'runtime/cache/',
+            ];
+            Cache::connect($options);
+            if(Cache::get('admin')) {
+                $adminInfo = Cache::get('admin');
+            }else{
+                $adminInfo= Db::name('admin')->where('id',$adminId)->find();
+                Cache::set('adminInfo',$adminInfo);
+            }
+            $adminInfo = Db::name('admin')->where('id',$adminId)->find();
+            $this->assign('adminInfo',$adminInfo);
+        }else{
             $this->redirect('admin/common/login');
         }
 
         //检查权限,这里如果是超级管理员则直接跳过权限检查
-        if($cookie['admin_cate_id'] != 1) {
+        if($adminInfo['admin_cate_id'] != 1){
             //不是超级管理员，获取访问的url结构
             $where['module'] = $this->request->module();
             $where['controller'] = $this->request->controller();
@@ -53,35 +78,32 @@ class User extends Controller{
             //将字符串转化为数组
             $parameter = explode('/',$parameter);
             //剔除url中的模块、控制器和方法
-            foreach ($parameter as $key => $value) {
-                if($value != $where['module'] and $value != $where['controller'] and $value != $where['function']) {
+            foreach ($parameter as $key => $value){
+                if($value != $where['module'] and $value != $where['controller'] and $value != $where['function']){
                     $param[] = $value;
                 }
             }
-
-            
-
-            if(isset($param) and !empty($param)) {
+            if(isset($param) and !empty($param)){
                 //确定有参数
                 $string = '';
-                foreach ($param as $key => $value) {
+                foreach($param as $key => $value){
                     //奇数为参数的参数名，偶数为参数的值
-                    if($key%2 !== 0) {
+                    if($key%2 !== 0){
                         //过滤只有一个参数和最后一个参数的情况
-                        if(count($param) > 2 and $key < count($param)-1) {
+                        if(count($param) > 2 and $key < count($param)-1){
                             $string.=$value.'&';
-                        } else {
+                        }else{
                             $string.=$value;
                         }
-                    } else {
+                    }else{
                         $string.=$value.'=';
                     }
                 } 
-            } else {
+            }else{
                 $string = [];
                 $param = $this->request->param();
-                foreach ($param as $key => $value) {
-                    if(!is_array($value)) {
+                foreach($param as $key => $value){
+                    if(!is_array($value)){
                         //这里不完美，param()会接收到页面表单的数据，数据里有字段的值是数组，所以会出错，这里过滤掉值为数组的参数
                         $string[] = $key.'='.$value;
                     }
@@ -93,16 +115,16 @@ class User extends Controller{
             $menus = Db::name('admin_cate')->where('id',$cookie['admin_cate_id'])->value('permissions');
             //将得到的菜单id集成的字符串拆分成数组
             $menus = explode(',',$menus);
-            if(!empty($string)) {
+            if(!empty($string)){
                 //检查该带参数的url是否设置了权限
                 $param_menu = Db::name('admin_menu')->where($where)->where('parameter',$string)->find();
                 //$data['name'] = $param_menu['name'];
-                if(!empty($param_menu)) {
+                if(!empty($param_menu)){
                     //该url的参数设置了权限，检查用户有没有权限
-                    if(false == in_array($param_menu['id'],$menus)) {//dump($param_menu);die;
+                    if(false == in_array($param_menu['id'],$menus)){//dump($param_menu);die;
                         return $this->error('你没有权限');
                     }
-                } else {
+                }else{
                     //该url带参数状态未设置权限，检查该url去掉参数时，用户有无权限
                     $menu = Db::name('admin_menu')->where($where)->find();
                     if(!empty($menu)) {
@@ -119,7 +141,7 @@ class User extends Controller{
                 //$data['name'] = $menu['name'];
                 if(!empty($menu)) {
                     if(empty($menu['parameter'])) {
-                        if(!in_array($menu['id'],$menus)) {
+                        if(!in_array($menu['id'],$menus)){
                             return $this->error('你没有权限');
                         }
                     }

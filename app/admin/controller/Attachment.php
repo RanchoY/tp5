@@ -7,59 +7,42 @@ use app\admin\controller\User;
 
 use app\admin\model\Attachment as AttachmentModel;
 class Attachment extends User{
+
     public function index(){
-        $attachmentModel = new AttachmentModel();
-
-        $post = $this->request->post();
-        if(isset($post['keywords']) and !empty($post['keywords'])){
-            $where['filename'] = ['like', '%' . $post['keywords'] . '%'];
-        }
-        
-        if(isset($post['status']) and($post['status'] == 1 or $post['status'] === '0' or $post['status'] == -1)){
-            $where['status'] = $post['status'];
-        }
- 
-        if(isset($post['create_time']) and !empty($post['create_time'])){
-            $min_time = strtotime($post['create_time']);
-            $max_time = $min_time + 24 * 60 * 60;
-            $where['create_time'] = [['>=',$min_time],['<=',$max_time]];
-        }
-        
-        $attachment = empty($where) ? $attachmentModel->order('create_time desc')->paginate(20) : $attachmentModel->where($where)->order('create_time desc')->paginate(20);
-
-        $this->assign('attachment',$attachment);
         return $this->fetch('index');
     }
-   
+    
     //得到文件列表
     public function getList(){
         if(!$this->request->isPost()){
             return $this->error('请求类型错误');
         }
-        
+
         $post = $this->request->post();
         $attachmentModel = new AttachmentModel();
-        $data = [];
-        if(isset($post['keywords']) and !empty($post['keywords'])){
-            $where['filename'] = ['like', '%' . $post['keywords'] . '%'];
+   
+        if(false == array_key_exists('serach',$post)){
+            $data = $attachmentModel->with('admin')->order('create_time')->select()->toArray();
+        }else{
+            $serach = $post['serach'];
+            $where = [];
+            if(isset($serach['keywords']) and !empty($serach['keywords'])){
+                $where['filename'] = ['like', '%' . $serach['keywords'] . '%'];
+            }
+            
+            if(isset($serach['status']) and($serach['status'] == 1 or $serach['status'] === '0' or $serach['status'] == -1)){
+                $where['status'] = $serach['status'];
+            }
+     
+            if(isset($serach['create_time']) and !empty($serach['create_time'])){
+                $min_time = date("Y-m-d H:i:s",strtotime($serach['create_time']));
+                $max_time = date("Y-m-d H:i:s", strtotime("next day", strtotime($serach['create_time'])));
+                $where['create_time'] = [['>=',$min_time],['<=',$max_time]];
+            }
+          
+            $data = $attachmentModel->with('admin')->where($where)->order('create_time')->select()->toArray();
         }
         
-        if(isset($post['status']) and($post['status'] == 1 or $post['status'] === '0' or $post['status'] == -1)){
-            $where['status'] = $post['status'];
-        }
- 
-        if(isset($post['create_time']) and !empty($post['create_time'])){
-            $min_time = strtotime($post['create_time']);
-            $max_time = $min_time + 24 * 60 * 60;
-            $where['create_time'] = [['>=',$min_time],['<=',$max_time]];
-        }
-
-        if(empty($where)){
-            $data = $attachmentModel->with('admin')->order('create_time')->select()->hidden(['password','thumb','admin_cate_id','update_time'])->toArray();
-        }else{
-            $data = $attachmentModel->with('admin')->where($where)->order('create_time')->select()->hidden(['password','thumb','admin_cate_id','update_time'])->toArray();
-        }
-
         return fmtData($data);
     }
 

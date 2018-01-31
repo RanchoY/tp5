@@ -9,20 +9,10 @@
 	<link rel="stylesheet" href="__PUBLIC__/layui/css/layui.css"  media="all">
 	<link rel="stylesheet" href="__PUBLIC__/font-awesome/css/font-awesome.min.css" media="all" />
 	<link rel="stylesheet" href="__CSS__/admin.css"  media="all">
-	<style type="text/css">
-		#tooltip{
-			position:absolute;
-			border:1px solid #ccc;
-			background:#333;
-			padding:2px;
-			display:none;
-			color:#fff;
-		}
-	</style>
 </head>
 <body>
 <blockquote class="layui-elem-quote layui-quote-nm">
-<form class="layui-form" action="{:url('admin/admin/getlist')}" method="post" lay-filter="form">
+<form class="layui-form" action="{:url('admin/admin/getList')}" method="post" lay-filter="form">
     <div class="layui-form-item" style="margin:0px;">
       	<div class="layui-input-inline">
         	<input class="layui-input layui-btn-sm" type="text" name="keywords" placeholder="请输入关键词" autocomplete="off">
@@ -56,8 +46,6 @@
 	<a class="layui-btn layui-btn-xs" lay-event="detail">查看</a>
 	<a class="layui-btn layui-btn-xs" lay-event="edit">编辑</a>
   	<a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
-	<!-- <a href="{:url('admin/publish',['id'=>$vo.id])}" class="layui-btn layui-btn-xs a_menu" id="{$vo.id}" style="margin-right: 0;font-size:12px;">修改</a>
-    <a class="layui-btn layui-btn-xs layui-btn-danger delete" id="{$vo.id}" style="margin-right: 0;font-size:12px;">删除</a> -->
 </script>
 <script src="__PUBLIC__/layui/layui.js" charset="utf-8"></script>
 <script src="__PUBLIC__/jquery/jquery.min.js"></script>
@@ -92,7 +80,7 @@ layui.use(['laydate','form','table','layer'],function(){
 	//搜索
 	form.on('submit(search)', function(data){
 		tableInit.reload({
-			where: {key: data.field}
+			where: {serach:data.field}
 		});
 		return false;
   	});

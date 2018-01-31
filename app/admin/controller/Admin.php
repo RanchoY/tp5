@@ -21,6 +21,11 @@ class Admin extends User{
 
         return $this->fetch('index'); 
     }
+    
+    public function x(){
+        $post = $this->request->post();
+        dump($post['serach']);
+    }
 
     //获取管理员列表
     public function getList(){
@@ -30,10 +35,10 @@ class Admin extends User{
         $post = $this->request->post();
         $adminModel = new AdminModel();
   
-        if(array_key_exists('key',$post) == false){
+        if(array_key_exists('serach',$post) == false){
             $data = $adminModel->with('admincate')->order('create_time desc')->select()->hidden(['password','thumb','admin_cate_id','update_time'])->toArray();
         }else{
-            $serach = $post['key'];
+            $serach = $post['serach'];
             $where = [];
             if (isset($serach['keywords']) and !empty($serach['keywords'])){
                 $where['nickname'] = ['like', '%' . $serach['keywords'] . '%'];

@@ -1,9 +1,10 @@
 <div class="layui-footer">
     <!-- 底部固定区域 -->
-    2017 &copy;
-    <a href="javascript:;">thinkphp5后台</a> www.ranchoy.cn
+    2018 &copy;
+    <a href="javascript:;">thinkphp5后台</a>
 </div>
 </div>
+<script src="__PUBLIC__/jquery/jquery.min.js"></script>
 <script src="__PUBLIC__/layui/layui.js"></script>
 <script>
 var message;
@@ -11,9 +12,9 @@ layui.config({
         base: '__JS__/',
         version: '1.0.1'
 }).use(['app', 'message'], function(){
-    var app = layui.app,
-        $ = layui.jquery,
-        layer = layui.layer;
+    var   app = layui.app;
+    var     $ = layui.jquery;
+    var layer = layui.layer;
     //将message设置为全局以便子页面调用
     message = layui.message;
     //主入口
@@ -36,8 +37,8 @@ layui.config({
         return layui.data('kit_skin').skin;
     },
     switchSkin = function(value){
-        var _target = $('link[kit-skin]')[0];
-        _target.href = _target.href.substring(0, _target.href.lastIndexOf('/') + 1) + value + _target.href.substring(_target.href.lastIndexOf('.'));
+        var $target = $('link[kit-skin]')[0];
+        $target.href = $target.href.substring(0, $target.href.lastIndexOf('/') + 1) + value + $target.href.substring($target.href.lastIndexOf('.'));
         setSkin(value);
     },
     initSkin = function(){
@@ -61,34 +62,32 @@ layui.config({
         skin: 'color-class',
         btn:['默认黑','橘子橙','原谅绿','少女粉','天空蓝','枫叶红'],
         yes: function(index, layero){
-            switchSkin('default');
-            }
-            ,btn2: function(index, layero){
-            switchSkin('orange');
-            return false;
-            }
-            ,btn3: function(index, layero){
-            switchSkin('green');
-            return false;
-            }
-            ,btn4: function(index, layero){
+                switchSkin('default');
+            },
+            btn2: function(index, layero){
+                switchSkin('orange');
+                return false;
+            },
+            btn3: function(index, layero){
+                switchSkin('green');
+                return false;
+            },
+            btn4: function(index, layero){
             switchSkin('pink');
             return false;
+            },
+            btn5: function(index, layero){
+                switchSkin('blue.1');
+                return false;
+            },
+            btn6: function(index, layero){
+                switchSkin('red');
+                return false;
             }
-            ,btn5: function(index, layero){
-            switchSkin('blue.1');
-            return false;
-            }
-            ,btn6: function(index, layero){
-            switchSkin('red');
-            return false;
-            }
-
         });
     });
 });
 </script>
-<script src="__PUBLIC__/jquery/jquery.min.js"></script>
 <script type="text/javascript">
 layui.use('jquery', function(){
     var $ = layui.jquery;
@@ -105,7 +104,7 @@ layui.use('jquery', function(){
                         msg:res.msg
                     });
                     $('#clear i').attr("class","fa fa-trash");
-                },1000)
+                },1000);
             }
             }
         })
@@ -115,22 +114,22 @@ layui.use('jquery', function(){
 $('#logout').click(function(){
 layer.confirm('真的要退出?',{icon: 3, title:'提示',anim: 2}, function(index){
     $.ajax({
-        url:"{:url('admin/common/logout')}"
-        ,success:function(res){
+        url:"{:url('admin/common/logout')}",
+        success:function(res){
             layer.msg(res.msg,{offset: '250px',anim: 4});
             if(res.code == 1){
                 setTimeout(function(){
                     location.href = res.url;
-                },2000)
+                },2000);
             }
         }
     });
 }) 
 })
-
+//控制left的nav闭合状态
 $('.layui-nav-item').click(function(){
-$(this).siblings('li').attr('class','layui-nav-item');
-})
+    $(this).siblings('li').attr('class','layui-nav-item');
+});
 
 $('#copyright').click(function(){
 layer.open({
@@ -146,7 +145,7 @@ layer.open({
     isOutAnim:false,
     resize:false,
     skin: 'color-class',
-    content:'<p>当前版本：Tplay-v1.3</p><p>开发基于：ThinkPHP5 + Layui2</p><p>TP版本：5.0.14</p><p>Layui版本：2.2.5</p><a href="https://jq.qq.com/?_wv=1027&k=5wZeNTd" class="layui-btn layui-btn-danger" target="_blank">官方交流群</a><a href="http://tplay.pengyichen.cn" class="layui-btn" target="_blank">下载最新版</a><p>关于版权<hr></p><blockquote class="layui-elem-quote">Tplay遵循Apache2开源协议发布，并提供免费使用。请了解Apache2开源协议后再作为开源或商业软件发布。</blockquote><p>© 2018 Tplay 版权所有</p>',
+    content:'<p>当前版本：Tplay-v1.3</p><p>开发基于：ThinkPHP5 + Layui2</p><p>TP版本：5.0.14</p><p>Layui版本：2.2.5</p><a href="https://jq.qq.com/?_wv=1027&k=5wZeNTd" class="layui-btn layui-btn-danger" target="_blank">官方交流群</a><a href="http://tplay.pengyichen.cn" class="layui-btn" target="_blank">下载最新版</a><p>关于版权<hr></p><blockquote class="layui-elem-quote">Tplay遵循Apache2开源协议发布，并提供免费使用。请了解Apache2开源协议后再作为开源或商业软件发布。</blockquote>',
     });
 })
 </script>
@@ -154,21 +153,20 @@ layer.open({
 layui.use('layer', function(){
     var layer = layui.layer;
     var remember = '';
-
     $('#tag').click(function(){
         var tag = localStorage.getItem("tag");
         layer.prompt({
             formType: 2,
             anim: 1,
-            offset: ['52px', 'calc(100% - 500px)'],
-            value: tag,
-            title: '便签 => 是存在本地的',
-            skin: 'demo-class',
-            area: ['280px', '150px'],
+            move: false,
             id: 'remember' ,//设定一个id，防止重复弹出
-            btn: ['朕写好了', '忘了吧...'],
+            value: tag, 
             shade: 0,
-            moveType: 1, //拖拽模式，0或者1
+            skin: 'demo-class',
+            title: '便签 => 是存在本地的',
+            area: ['280px', '150px'],
+            btn: ['朕写好了', '忘了吧...'],
+            offset: ['52px', 'calc(100% - 500px)'],     
             btn2: function(index, layero){
                     localStorage.removeItem("tag");
                     $('#remember textarea').val(''); 

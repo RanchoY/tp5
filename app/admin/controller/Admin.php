@@ -20,13 +20,8 @@ class Admin extends User{
         $this->assign('info',$info);
 
         return $this->fetch('index'); 
-    }
+    } 
     
-    public function x(){
-        $post = $this->request->post();
-        dump($post['serach']);
-    }
-
     //获取管理员列表
     public function getList(){
         if(!$this->request->isPost()){
@@ -54,7 +49,6 @@ class Admin extends User{
             }
             $data = $adminModel->with('admincate')->where($where)->order('create_time desc')->select()->hidden(['password','thumb','admin_cate_id','update_time'])->toArray();
         }
-
         return fmtData($data);
     }
 
@@ -198,10 +192,7 @@ class Admin extends User{
     	}
     }
 
-    /**
-     * 管理员删除
-     * @return [type] [description]
-     */
+    //管理员删除
     public function delete(){
         $adminModel = new AdminModel();
     	if($this->request->isPost()){
@@ -233,13 +224,9 @@ class Admin extends User{
     	}
     }
 
-    
-    /**
-     * 管理员权限分组列表
-     * @return [type] [description]
-     */
+    //管理员权限分组列表
     public function adminCate(){
-    	$model = new AdminCateModel();
+    	$adminCateModel = new AdminCateModel();
 
         $post = $this->request->post();
         if (isset($post['keywords']) and !empty($post['keywords'])){
@@ -252,56 +239,82 @@ class Admin extends User{
             $where['create_time'] = [['>=',$min_time],['<=',$max_time]];
         }
         
-        $cate = empty($where) ? $model->order('create_time desc')->paginate(20) : $model->where($where)->order('create_time desc')->paginate(20);
+        $cate = empty($where) ? $adminCateModel->order('create_time desc')->paginate(20) : $adminCateModel->where($where)->order('create_time desc')->paginate(20);
         
     	$this->assign('cate',$cate);
     	return $this->fetch();
     }
 
+    //获取管理员角色列表
+    public function getAdmincateList(){
+        // if(!$this->request->isPost()){
+        //     return $this->error('请求类型错误');
+        // }
+        $post = $this->request->post();
+        $adminCateModel = new AdminCateModel();
 
-    /**
-     * 管理员角色添加和修改操作
-     * @return [type] [description]
-     */
+        if(array_key_exists('serach',$post) == false){
+            $data = $adminCateModel->order('create_time desc')->select()->toArray();
+        }else{
+            $serach = $post['serach'];
+            $where = [];
+            if (isset($serach['keywords']) and !empty($serach['keywords'])){
+                $where['nickname'] = ['like', '%' . $serach['keywords'] . '%'];
+            }
+            if (isset($serach['admin_cate_id']) and $serach['admin_cate_id'] > 0){
+                $where['admin_cate_id'] = $serach['admin_cate_id'];
+            }
+    
+            if(isset($serach['create_time']) and !empty($serach['create_time'])){
+                $min_time = date("Y-m-d H:i:s",strtotime($serach['create_time']));
+                $max_time = date("Y-m-d H:i:s", strtotime("next day", strtotime($serach['create_time'])));
+                $where['create_time'] = [['>=',$min_time],['<=',$max_time]];
+            }
+            $data = $adminCateModel->where($where)->order('create_time desc')->select()->toArray();
+        } 
+        return fmtData($data);
+    }
+
+    //管理员角色添加和修改操作
     public function adminCatePublish(){
         //获取角色id
         $id = $this->request->has('id') ? $this->request->param('id', 0, 'intval') : 0;
-        $model = new \app\admin\model\AdminCate();
+        $model = new AdminCateModel();
         $menuModel = new AdminMenu();
-        if($id > 0) {
+        if($id > 0){
             //是修改操作
-            if($this->request->isPost()) {
+            if($this->request->isPost()){
                 //是提交操作
                 $post = $this->request->post();
                 //验证  唯一规则： 表名，字段名，排除主键值，主键名
-                $validate = new \think\Validate([
+                $validate = new Validate([
                     ['name', 'require', '角色名称不能为空'],
                 ]);
                 //验证部分数据合法性
-                if (!$validate->check($post)) {
+                if (!$validate->check($post)){
                     $this->error('提交失败：' . $validate->getError());
                 }
                 //验证用户名是否存在
                 $name = $model->where(['name'=>$post['name'],'id'=>['neq',$post['id']]])->select();
-                if(!empty($name)) {
+                if(!empty($name)){
                     return $this->error('提交失败：该角色名已存在');
                 }
                 //处理选中的权限菜单id，转为字符串
-                if(!empty($post['admin_menu_id'])) {
+                if(!empty($post['admin_menu_id'])){
                     $post['permissions'] = implode(',',$post['admin_menu_id']);
-                } else {
+                }else{
                     $post['permissions'] = '0';
                 }
-                if(false == $model->allowField(true)->save($post,['id'=>$id])) {
+                if(false == $model->allowField(true)->save($post,['id'=>$id])){
                     return $this->error('修改失败');
-                } else {
+                }else{
                     addlog($model->id);//写入日志
                     return $this->success('修改角色信息成功','admin/admin/adminCate');
                 }
-            } else {
+            }else{
                 //非提交操作
                 $info['cate'] = $model->where('id',$id)->find();
-                if(!empty($info['cate']['permissions'])) {
+                if(!empty($info['cate']['permissions'])){
                     //将菜单id字符串拆分成数组
                     $info['cate']['permissions'] = explode(',',$info['cate']['permissions']);
                 }
@@ -310,35 +323,35 @@ class Admin extends User{
                 $this->assign('info',$info);
                 return $this->fetch();
             }
-        } else {
+        }else{
             //是新增操作
-            if($this->request->isPost()) {
+            if($this->request->isPost()){
                 //是提交操作
                 $post = $this->request->post();
                 //验证  唯一规则： 表名，字段名，排除主键值，主键名
-                $validate = new \think\Validate([
+                $validate = Validate([
                     ['name', 'require', '角色名称不能为空'],
                 ]);
                 //验证部分数据合法性
-                if (!$validate->check($post)) {
+                if (!$validate->check($post)){
                     $this->error('提交失败：' . $validate->getError());
                 }
                 //验证用户名是否存在
                 $name = $model->where('name',$post['name'])->find();
-                if(!empty($name)) {
+                if(!empty($name)){
                     return $this->error('提交失败：该角色名已存在');
                 }
                 //处理选中的权限菜单id，转为字符串
-                if(!empty($post['admin_menu_id'])) {
+                if(!empty($post['admin_menu_id'])){
                     $post['permissions'] = implode(',',$post['admin_menu_id']);
                 }
-                if(false == $model->allowField(true)->save($post)) {
+                if(false == $model->allowField(true)->save($post)){
                     return $this->error('添加角色失败');
-                } else {
+                }else{
                     addlog($model->id);//写入日志
                     return $this->success('添加角色成功','admin/admin/adminCate');
                 }
-            } else {
+            }else{
                 //非提交操作
                 $menus = Db::name('admin_menu')->select();
                 $info['menu'] = $this->menulist($menus);
@@ -353,7 +366,7 @@ class Admin extends User{
         $id = $this->request->has('id') ? $this->request->param('id', 0, 'intval') : 0;
         $model = new \app\admin\model\AdminCate();
         $info['cate'] = $model->where('id',$id)->find();
-        if(!empty($info['cate']['permissions'])) {
+        if(!empty($info['cate']['permissions'])){
             //将菜单id字符串拆分成数组
             $info['cate']['permissions'] = explode(',',$info['cate']['permissions']);
         }
@@ -366,21 +379,21 @@ class Admin extends User{
     protected function menulist($menu,$id=0,$level=0){
         static $menus = array();
         $size = count($menus)-1;
-        foreach ($menu as $value) {
-            if ($value['pid']==$id) {
+        foreach ($menu as $value){
+            if ($value['pid']==$id){
                 $value['level'] = $level+1;
                 if($level == 0)
-                {
+               {
                     $value['str'] = str_repeat('',$value['level']);
                     $menus[] = $value;
                 }
-                elseif($level == 2)
-                {
+            elseif($level == 2)
+               {
                     $value['str'] = '&emsp;&emsp;&emsp;&emsp;'.'└ ';
                     $menus[$size]['list'][] = $value;
                 }
-                else
-                {
+            else
+               {
                     $value['str'] = '&emsp;&emsp;'.'└ ';
                     $menus[$size]['list'][] = $value;
                 }
@@ -391,24 +404,21 @@ class Admin extends User{
         return $menus;
     }
 
-    /**
-     * 管理员角色删除
-     * @return [type] [description]
-     */
+    //管理员角色删除
     public function adminCateDelete(){
-        if($this->request->isAjax()) {
+        if($this->request->isAjax()){
             $id = $this->request->has('id') ? $this->request->param('id', 0, 'intval') : 0;
-            if($id > 0) {
-                if($id == 1) {
+            if($id > 0){
+                if($id == 1){
                     return $this->error('超级管理员角色不能删除');
                 }
-                if(false == Db::name('admin_cate')->where('id',$id)->delete()) {
+                if(false == Db::name('admin_cate')->where('id',$id)->delete()){
                     return $this->error('删除失败');
-                } else {
+                }else{
                     addlog($id);//写入日志
                     return $this->success('删除成功','admin/admin/adminCate');
                 }
-            } else {
+            }else{
                 return $this->error('id不正确');
             }
         }
@@ -418,15 +428,15 @@ class Admin extends User{
         $model = new AdminLogModel();
 
         $post = $this->request->post();
-        if (isset($post['admin_menu_id']) and $post['admin_menu_id'] > 0) {
+        if (isset($post['admin_menu_id']) and $post['admin_menu_id'] > 0){
             $where['admin_menu_id'] = $post['admin_menu_id'];
         }
         
-        if (isset($post['admin_id']) and $post['admin_id'] > 0) {
+        if (isset($post['admin_id']) and $post['admin_id'] > 0){
             $where['admin_id'] = $post['admin_id'];
         }
  
-        if(isset($post['create_time']) and !empty($post['create_time'])) {
+        if(isset($post['create_time']) and !empty($post['create_time'])){
             $min_time = strtotime($post['create_time']);
             $max_time = $min_time + 24 * 60 * 60;
             $where['create_time'] = [['>=',$min_time],['<=',$max_time]];

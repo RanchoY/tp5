@@ -1,12 +1,9 @@
 <?php
-
-
 namespace think\paginator\driver;
 
 use think\Paginator;
 
-class Layui extends Paginator
-{  
+class Layui extends Paginator{  
   
     //首页  
     protected function home() {  

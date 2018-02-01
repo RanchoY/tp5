@@ -31,6 +31,14 @@
     </div>
   </form>
 </fieldset>
+<table id="table" class="layui-table" lay-filter="table"></table>
+<script type="text/html" id="operate">
+	<a class="layui-btn layui-btn-xs" lay-event="edit">编辑</a>
+  	<a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
+</script>
+<script type="text/html" id="auth_preview">
+    <a class="layui-btn layui-btn-xs" lay-event="view">点击查看</a>
+</script>
 <table class="layui-table" lay-even="" lay-skin="row" lay-size="sm">
   <colgroup>
     <col width="50">
@@ -74,24 +82,113 @@
 <script src="__PUBLIC__/layui/layui.js" charset="utf-8"></script>
 <script src="__PUBLIC__/jquery/jquery.min.js"></script>
 <script>
-        var message;
-        layui.config({
-            base: '__JS__/',
-            version: '1.0.1'
-        }).use(['app', 'message'], function() {
-            var app = layui.app,
-                $ = layui.jquery,
-                layer = layui.layer;
-            //将message设置为全局以便子页面调用
-            message = layui.message;
-            //主入口
-            app.set({
-                type: 'iframe'
-            }).init();
-        });
-    </script> 
+var message;
+layui.config({
+    base: '__JS__/',
+    version: '1.0.1'
+}).use(['app', 'message'], function() {
+    var app = layui.app,
+        $ = layui.jquery,
+        layer = layui.layer;
+    //将message设置为全局以便子页面调用
+    message = layui.message;
+    //主入口
+    app.set({
+        type: 'iframe'
+    }).init();
+});
+</script> 
 <script type="text/javascript">
+layui.use(['laydate','form','table','layer'],function(){
+    var laydate = layui.laydate;
+	var  form 	= layui.form;
+	var table 	= layui.table;
+    var layer   = layui.layer;
 
+    laydate.render({
+    	elem: '#create_time'
+  	});
+
+	//搜索
+	form.on('submit(search)', function(data){
+		tableInit.reload({
+			where: {serach:data.field}
+		});
+		return false;
+  	});
+
+	var tableInit = table.render({
+		id: 'table',
+		elem: '#table',
+		url: "{:url('admin/admin/getAdmincateList')}",
+		method: 'post',
+		height: 600,
+		page: true,
+		cols: [[
+			{checkbox:true,fixed:true,width:100},
+            {field:'id',title:'编号',width:100},
+            {toolbar:'#auth_preview',title:'权限预览',width:200,align:'center'},
+			{field:'name',title:'角色名称',width:100},
+			{field:'create_time',title:'创建时间',width:200},
+			{field:'update_time',title:'最后修改时间',width:200},
+			{field:'desc',title:'备注',width:200},
+			{toolbar:'#operate',title:'操作',width:500,align:'center'}
+		]],
+	});
+
+	//监听工具条
+	table.on('tool(table)', function(obj){
+		var data = obj.data; 
+		var layEvent = obj.event; 
+		var tr = obj.tr;
+		
+		if(layEvent === 'view'){
+            layer.open({
+                type:2,
+                content: "{:url('admin/admin/preview')}?id="+data.id,
+                area: ['550px', '400px']
+            });
+        }else if(layEvent === 'del'){ //删除
+			layer.confirm('确定要删除?', function(index){
+				$.post("{:url('admin/admin/adminCateDelete')}",{id:data.id},function(res){
+					if(res.code==0){
+						layer.msg(res.msg,{time:1000,icon:5});
+					}else{
+						layer.msg(res.msg,{time:1000,icon:6});
+					}
+					tableInit.reload();
+				});
+				layer.close(index);
+			});
+		}else if(layEvent === 'edit'){ //编辑
+			$.ajax({
+				url:"{:url('admin/admin/adminCatePublish')}",
+				type:'get',
+				data:{id:data.id},
+				success: function(res){
+					if(res.code === 0){
+						layer.msg('你没有权限!');
+					}else{
+						layer.open({
+							type:2,
+							content:["{:url('admin/admin/adminCatePublish')}?id="+data.id,'no'],
+							area: ['700px', '600px'],
+							maxmin: true,
+							end:function(){
+								tableInit.reload();
+							}
+						});
+					}
+				},
+				error: function(){
+					layer.msg('请求失败!');
+				}
+			});
+		}
+	});
+});
+</script>
+<!-- <script type="text/javascript">
 $('.delete').click(function(){
   var id = $(this).attr('id');
   layer.confirm('确定要删除?', function(index) {
@@ -109,7 +206,7 @@ $('.delete').click(function(){
     })
   })
 })
-</script>
+</script> -->
 <script type="text/javascript">
 layui.use('layer', function(){
   var layer = layui.layer;
@@ -148,16 +245,6 @@ layui.use('layer', function(){
     });
     return false;
   })
-});
-</script>
-<script>
-layui.use('laydate', function(){
-  var laydate = layui.laydate;
-  
-  //常规用法
-  laydate.render({
-    elem: '#create_time'
-  });
 });
 </script>
 </body>

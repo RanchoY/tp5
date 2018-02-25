@@ -21,9 +21,9 @@ class User extends Controller{
             $black_ip = explode(',',$black_ip);
             //获取当前访问的ip
             $ip = $this->request->ip();
-            if(in_array($ip,$black_ip)) {
+            if(in_array($ip,$black_ip)){
                 //清空session
-                if(Session::has('admin')) {
+                if(Session::has('admin')){
                     Session::delete('admin');
                 }
                 return $this->error('你的ip在黑名单里','admin/common/login');
@@ -44,7 +44,7 @@ class User extends Controller{
                 'path'  =>  APP_PATH.'runtime/cache/',
             ];
             Cache::connect($options);
-            if(Cache::get('admin')) {
+            if(Cache::get('admin')){
                 $adminInfo = Cache::get('admin');
             }else{
                 $adminInfo= Db::name('admin')->where('id',$adminId)->find();
@@ -117,16 +117,16 @@ class User extends Controller{
                 }else{
                     //该url带参数状态未设置权限，检查该url去掉参数时，用户有无权限
                     $menu = Db::name('admin_menu')->where($where)->find();
-                    if(!empty($menu)) {
-                        if(empty($menu['parameter'])) {
-                            if(!in_array($menu['id'],$menus)) {
+                    if(!empty($menu)){
+                        if(empty($menu['parameter'])){
+                            if(!in_array($menu['id'],$menus)){
                                 return $this->error('你没有权限');
                             }
                         }
                     }
                 }
             }else{
-                //用户访问的url里没有参数
+                //用户访问的url里没有参数sss
                 $menu = Db::name('admin_menu')->where($where)->find();
                 //$data['name'] = $menu['name'];
                 if(!empty($menu)){

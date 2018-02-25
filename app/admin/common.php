@@ -112,8 +112,9 @@ function info($msg = '', $code = '', $url = '',  $data = '', $wait = 3){
 
 //定义返回数据类型,主要满足layui-table要求格式,code=0成功,code=-1失败
 function fmtData($data='', $msg='', $code=0){
-    //计算$data行数
-    $count = count($data);
+    //计算$data行数,paginate知道总数
+    $count = array_key_exists('total',$data)?$data['total']:count($data);
+    $res = array_key_exists('data',$data)?$data['data']:$data;
 	if(is_numeric($msg)){
         $code = $msg;
         $msg  = '';
@@ -122,7 +123,7 @@ function fmtData($data='', $msg='', $code=0){
         'code' => $code,
         'msg' => $msg,
         'count' => $count,
-        'data' => $data
+        'data' => $res
     ];
     return $result;
 }

@@ -12,7 +12,7 @@
 </head>
 <body>
 <blockquote class="layui-elem-quote layui-quote-nm">
-<form class="layui-form" action="{:url('admin/admin/getList')}" method="post" lay-filter="form">
+<form class="layui-form" action="{:url('admin/admin/index')}" method="post" lay-filter="form">
     <div class="layui-form-item" style="margin:0px;">
       	<div class="layui-input-inline">
         	<input class="layui-input layui-btn-sm" type="text" name="keywords" placeholder="请输入关键词" autocomplete="off">
@@ -79,7 +79,7 @@ layui.use(['laydate','form','table','layer'],function(){
 	//搜索
 	form.on('submit(search)', function(data){
 		tableInit.reload({
-			where: {serach:data.field}
+			where: {search:data.field}
 		});
 		return false;
   	});
@@ -87,7 +87,7 @@ layui.use(['laydate','form','table','layer'],function(){
 	var tableInit = table.render({
 		id: 'table',
 		elem: '#table',
-		url: "{:url('admin/admin/getlist')}",
+		url: "{:url('admin/admin/index')}",
 		method: 'post',
 		height: 600,
 		page: true,

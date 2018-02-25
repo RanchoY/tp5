@@ -294,9 +294,9 @@ class Admin extends User{
                 if (!$validate->check($post)){
                     $this->error('提交失败：' . $validate->getError());
                 }
-                //验证用户名是否存在
-                $name = $model->where(['name'=>$post['name'],'id'=>['neq',$post['id']]])->select();
-                if(!empty($name)){
+                //验证角色名是否存在
+                $adminCateName = $model->where(['name'=>$post['name'],'id'=>['neq',$post['id']]])->select();
+                if(!$adminCateName->isEmpty()){
                     return $this->error('提交失败：该角色名已存在');
                 }
                 //处理选中的权限菜单id，转为字符串

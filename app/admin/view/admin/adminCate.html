@@ -81,7 +81,6 @@ layui.use(['laydate','form','table','layer'],function(){
 		url: "{:url('admin/admin/admincate')}",
         method: 'post',
         height: 600,
-        width: 1700,
 		page: true,
 		cols: [[
 			{checkbox:true,fixed:true,width:100},
@@ -91,7 +90,7 @@ layui.use(['laydate','form','table','layer'],function(){
 			{field:'create_time',title:'创建时间',width:200},
 			{field:'update_time',title:'最后修改时间',width:200},
 			{field:'desc',title:'备注',width:300},
-			{toolbar:'#operate',title:'操作',width:500,align:'center'}
+			{toolbar:'#operate',title:'操作',width:505,align:'center'}
 		]],
 	});
 

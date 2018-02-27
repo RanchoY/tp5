@@ -126,7 +126,7 @@ class User extends Controller{
                     }
                 }
             }else{
-                //用户访问的url里没有参数sss
+                //用户访问的url里没有参数
                 $menu = Db::name('admin_menu')->where($where)->find();
                 //$data['name'] = $menu['name'];
                 if(!empty($menu)){

@@ -1,6 +1,5 @@
 <?php
 //admin模块公共函数
-
 /**
  * 管理员密码加密方式
  * @param $password  密码

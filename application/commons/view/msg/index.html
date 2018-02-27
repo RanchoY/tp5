@@ -1,0 +1,97 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>调试短信验证码</title>
+<script src="../../../../tpcore/public/static/jquery-3.1.1.min.js" type="text/javascript"></script>
+</head>
+
+<body>
+<center>
+    <img id="img1" style="width:304px;height: 42px;margin-top: 10px;" src="{:captcha_src()}" alt="captcha" onClick="guang1()"/><br>
+     请输入识别码：<input  class="input2" type="" placeholder="请输入验证码"  id="code2"><br><br>
+   
+    请输入您的手机：<input id="tel" type="text" name="tel">
+    <input type="submit" value="获取验证码" id="sendcode">
+    
+    <br><br>
+
+    <form action="{:url('msg/telcheck')}" method="post">
+    验证识别：<input type="text" name="code">
+            <input type="submit" value="验证">
+    </form><br>
+    <hr>
+    <form action="{:url('msg/sendMsg_p')}" method="post">
+    通知推送：<input type="text" name="code" placeholder="消息">
+            <input type="text" name="tel" placeholder="电话">
+            <input type="submit" value="推送">
+    </form>
+</center>
+</body>
+    <script>
+    function guang1(){
+    var ts=Date.parse(new Date())/1000;
+    console.log(ts);
+    $("#img1").attr('src','/tpcore/public/index.php/captcha.html?id='+ts);
+   }
+    function changing(){
+        document.getElementById('checkpic').src="phpcode.php?"+Math.random();
+    } 
+    
+    $("#sendcode").click(function(){
+        var $tel=$("#tel").val();
+        var $verify=$("#code2").val();
+        
+        if($verify==''||$tel==''){
+            alert('电话号码和识别码必填');
+            return false;
+        }
+    
+            
+    
+        $.ajax({
+         url: "{:url('msg/sendMsg')}",
+         type: 'post',
+         dataType: 'json',
+         data:{tel:$tel,verify:$verify},
+         timeout: 1000,
+         cache: false,
+         beforeSend: LoadFunction, //加载执行方法  
+         error: erryFunction,  //错误执行方法  
+         success: succFunction //成功执行方法  
+     })
+     function LoadFunction() {
+         $("#list").html('加载中...');
+     }
+     function erryFunction() {
+         alert("error");
+     }
+     function succFunction(json) {
+      if(json=='0'){
+        alert('识别码错误');
+      }
+      if(json=='1'){
+        //alert('请求成功');
+        autostop();
+      }
+        
+     }
+        
+    });
+    
+    function autostop(){
+        var distime=60;
+        var timer=setInterval(function(){
+            distime--;
+            $("#sendcode").val(distime+'秒后重新获取');
+            $("#sendcode").attr("disabled",true);
+            if(distime<=1){
+                clearInterval(timer);
+                $("#sendcode").attr("disabled",false);
+                $("#sendcode").val('获取验证码');
+            }
+        },1000);
+    }
+    </script>
+</html>
+        

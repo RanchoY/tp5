@@ -12,7 +12,7 @@
 // [ 应用入口文件 ]
 
 // 定义应用目录
-define('APP_PATH', __DIR__ . '/../app/');
+define('APP_PATH', __DIR__ . '/../application/');
 //定义静态资源目录或url
 define('STATIC_PATH', '/tplay/public/static/');
 //定义PUBLIC目录

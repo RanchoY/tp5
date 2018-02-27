@@ -254,7 +254,7 @@ class Admin extends User{
     //管理员角色添加和修改操作
     public function adminCatePublish(){
         //获取角色id
-        $id = $this->request->has('id') ? $this->request->param('id', 0, 'intval') : 0;
+        $id = $this->request->has('id') ? $this->request->param('id',0,'intval') : 0;
         $adminCateModel = new AdminCateModel();
         $menuModel = new AdminMenu();
         if($id > 0){

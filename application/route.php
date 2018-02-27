@@ -10,10 +10,10 @@
 // +----------------------------------------------------------------------
 
 //url美化 例：Route::rule('blog/:id','index/blog/read');
-$url = \think\Db::name("urlconfig")->where(['status' => 1])->column('aliases,url');
-foreach ($url as $k => $val) {
-	\think\Route::rule($k,$val);
-}
+// $url = \think\Db::name("urlconfig")->where(['status' => 1])->column('aliases,url');
+// foreach ($url as $k => $val) {
+// 	\think\Route::rule($k,$val);
+// }
 
 return [
     '__pattern__' => [

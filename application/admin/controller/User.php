@@ -6,6 +6,7 @@ use think\Cache;
 use think\Loader;
 use think\Session;
 use think\Controller;
+
 class User extends Controller{
     /**
      * 检查操作用户的ip是否在黑名单里

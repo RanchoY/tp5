@@ -1,8 +1,9 @@
 <?php
 namespace app\admin\controller;
 
-use \think\Db;
-use \app\admin\controller\User;
+use think\Db;
+use think\Validate;
+use app\admin\controller\User;
 
 class Emailconfig extends User{
 
@@ -16,7 +17,7 @@ class Emailconfig extends User{
     	if($this->request->isPost()){
     		$post = $this->request->post();
     		//验证  唯一规则： 表名，字段名，排除主键值，主键名
-            $validate = new \think\Validate([
+            $validate = new Validate([
                 ['from_email', 'require|email', '发件箱不能为空|发件箱格式不正确'],
                 ['from_name', 'require', '发件人不能为空'],
                 ['smtp', 'require', '邮箱smtp服务器不能为空'],
@@ -45,7 +46,7 @@ class Emailconfig extends User{
     	if($this->request->isPost()){
     		$post = $this->request->post();
     		//验证  唯一规则： 表名，字段名，排除主键值，主键名
-            $validate = new \think\Validate([
+            $validate = new Validate([
                 ['email', 'require|email', '收件箱不能为空|收件箱格式不正确'],
             ]);
             //验证部分数据合法性

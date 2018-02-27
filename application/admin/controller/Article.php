@@ -11,7 +11,6 @@ use app\admin\model\Article as articleModel;
 use app\admin\model\ArticleCate as cateModel;
 
 class Article extends User{
-    
     public function index(){
         $model = new articleModel();
         $post = $this->request->post();
